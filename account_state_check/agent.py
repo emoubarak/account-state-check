@@ -1,4 +1,4 @@
-"""One goal, one agent, two observations — and a page the agent can actually see.
+"""One goal, one agent, two observations: and a page the agent can actually see.
 
 Three things here are why a naive "point jev at the app" run reports ghosts:
 
@@ -100,7 +100,7 @@ SCROLL_HINT = ("\n\n(The page can continue below the visible screen: before deci
 
 def run_goal(url, goal, *, budget, busy_selector="", record_dir=None, before_close=None, echo=print,
              viewport=None, probe_layout=True):
-    """Drive jev from `url` toward `goal`. Returns (state, error) — state is None only if the
+    """Drive jev from `url` toward `goal`. Returns (state, error): state is None only if the
     page never loaded. `before_close(agent)` runs while the tab still exists (screenshots).
 
     `viewport` is (width, height, dpr) to emulate a screen. `probe_layout` reads the geometry

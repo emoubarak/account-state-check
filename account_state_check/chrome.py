@@ -46,7 +46,7 @@ def find_chrome():
     for app in MAC_APPS:
         if Path(app).exists():
             return app
-    raise RuntimeError("no Chrome/Chromium/Brave found — install one or export BH_CHROME_PATH=/path/to/chrome")
+    raise RuntimeError("no Chrome/Chromium/Brave found: install one or export BH_CHROME_PATH=/path/to/chrome")
 
 
 def free_port(start=9333, tries=200):
@@ -105,7 +105,7 @@ def wait_ready(port, proc=None, timeout=40):
             return ws
         if proc is not None and proc.poll() is not None:
             raise RuntimeError(
-                f"Chrome exited with code {proc.returncode} before opening port {port} — an orphan "
+                f"Chrome exited with code {proc.returncode} before opening port {port}: an orphan "
                 "browser may still hold the profile (`pgrep -af remote-debugging-port`)"
             )
         time.sleep(0.2)
@@ -166,7 +166,7 @@ def profiles_in_use():
 
 def purge_profiles(runs_dir, older_than_hours=None):
     """Remove kept browser profiles under `<runs>/<run>/chrome-profile` (~75 MB each): every one
-    when `older_than_hours` is None, else only the older ones — never one a running browser
+    when `older_than_hours` is None, else only the older ones: never one a running browser
     still has open. Returns the run folders cleaned."""
     in_use = profiles_in_use()
     cutoff = None if older_than_hours is None else time.time() - older_than_hours * 3600

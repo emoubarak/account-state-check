@@ -1,7 +1,7 @@
 """The standing checks: what each account state is shown and allowed, verified in the database.
 
 Each Check is a start path, ONE narrow goal in plain English with an explicit stop condition,
-and a `verify` that reads the database (or the page) — never the agent's own "done".
+and a `verify` that reads the database (or the page): never the agent's own "done".
 
     account-state-check audit --list
     account-state-check audit --only free_publish_blocked --headed

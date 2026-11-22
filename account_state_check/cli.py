@@ -1,4 +1,4 @@
-"""account-state-check — ask the real app, as a real account state.
+"""account-state-check: ask the real app, as a real account state.
 
     account-state-check init                         scaffold account-state-check.toml + hooks + checks here
     account-state-check doctor [--login PERSONA]     is everything wired? (no model calls)
@@ -54,7 +54,7 @@ def parse_args(argv=None):
     p = sub.add_parser("init", help="scaffold account-state-check.toml, account_state_check_hooks.py and account_state_check_checks.py")
     p.add_argument("--dir", default=".", help="where to write them (default: here)")
 
-    p = sub.add_parser("doctor", help="check keys, browser, target, datastore, hooks — no model calls")
+    p = sub.add_parser("doctor", help="check keys, browser, target, datastore, hooks: no model calls")
     _common(p)
     p.add_argument("--login", metavar="PERSONA",
                    help="also create that persona, sign it in over CDP, and delete it again")
@@ -84,7 +84,7 @@ def parse_args(argv=None):
 
     p = sub.add_parser("cleanup", help="delete throw-away accounts past keep_hours (or --all) and old browser profiles")
     _common(p)
-    p.add_argument("--all", action="store_true", help="every one, now — never while an audit is running")
+    p.add_argument("--all", action="store_true", help="every one, now: never while an audit is running")
 
     p = sub.add_parser("publish-shots", help="upload before/after PNGs for an issue, print the markdown")
     p.add_argument("issue", help="issue number")
@@ -100,10 +100,10 @@ def parse_args(argv=None):
 
 def preflight():
     if not (os.environ.get("TYPESAFE_API_KEY") or "").strip():
-        raise SystemExit("TYPESAFE_API_KEY is not set — jev's decision model key (https://docs.typesafe.ai). "
+        raise SystemExit("TYPESAFE_API_KEY is not set: jev's decision model key (https://docs.typesafe.ai). "
                          "Export it, or put it in the file named by [run] env_file.")
     if not (os.environ.get("TEXT_MODEL_API_KEY") or "").strip():
-        print("note: TEXT_MODEL_API_KEY is unset — fine for click-only goals; any goal that makes the "
+        print("note: TEXT_MODEL_API_KEY is unset: fine for click-only goals; any goal that makes the "
               "agent type a value will stop at the first field.")
 
 
@@ -165,7 +165,7 @@ def teardown_all(cfg, db, made, keep, base):
             if accounts.teardown(cfg, db, a):
                 print(f"cleanup : {a.persona} ({a.email}) deleted")
         except Exception as exc:
-            print(f"cleanup : could NOT delete {a.email}: {exc} — it stays in the ledger for `account-state-check cleanup`")
+            print(f"cleanup : could NOT delete {a.email}: {exc}: it stays in the ledger for `account-state-check cleanup`")
 
 
 # ─────────────────────────────────────────────────────────────── commands ──
@@ -217,14 +217,14 @@ def cmd_doctor(args):
         line(False, "login page unreachable", str(exc)[:120])
     line(bool((os.environ.get("TYPESAFE_API_KEY") or "").strip()), "TYPESAFE_API_KEY set")
     line(True if (os.environ.get("TEXT_MODEL_API_KEY") or "").strip() else None,
-         "TEXT_MODEL_API_KEY set", "" if os.environ.get("TEXT_MODEL_API_KEY") else "optional — only goals that type need it")
+         "TEXT_MODEL_API_KEY set", "" if os.environ.get("TEXT_MODEL_API_KEY") else "optional: only goals that type need it")
     try:
         line(True, "browser", chrome.find_chrome())
     except RuntimeError as exc:
         line(False, "browser", str(exc))
     db = store.open_store(cfg)
     if db.kind == "none":
-        line(None, "datastore", "none — checks can only read the page")
+        line(None, "datastore", "none: checks can only read the page")
     else:
         try:
             db.sql("select 1 as ok")
@@ -233,7 +233,7 @@ def cmd_doctor(args):
             line(False, "datastore", f"{db.describe()}: {str(exc)[:160]}")
     for name, pc in cfg.personas.items():
         kind = "static" if pc.get("email") else "throw-away"
-        line(None, f"persona {name}", f"{kind}{' — ' + pc['description'] if pc.get('description') else ''}")
+        line(None, f"persona {name}", f"{kind}{': ' + pc['description'] if pc.get('description') else ''}")
     if any(not pc.get("email") for pc in cfg.personas.values()):
         hooks = accounts.load_hooks(cfg, required=True)
         missing = [f for f in ("create_account", "delete_account") if not hasattr(hooks, f)]
@@ -284,7 +284,7 @@ def cmd_ask(args):
             account = accounts.provision(cfg, db, args.persona, uuid.uuid4().hex[:6], args.options)
             made.append(account)
             landed = sign_in(cfg, base, account)
-            print(f"as      : {args.persona} — {account.email} → {landed['path']}")
+            print(f"as      : {args.persona}: {account.email} → {landed['path']}")
             if account.vars:
                 print(f"vars    : {account.vars}")
         else:
@@ -300,7 +300,7 @@ def cmd_ask(args):
         if error:
             print(f"  !! {error}")
         if state is None:
-            print("\nthe page never loaded — nothing to report")
+            print("\nthe page never loaded: nothing to report")
             return 1
         page = state["page"]
         said = checks.text_of(state)
@@ -411,7 +411,7 @@ def cmd_audit(args):
             line += f"  [{r['error'][:80]}]"
         print(line)
     failures = [r for r in results if not r["passed"]]
-    print(f"\n{len(results) - len(failures)}/{len(results)} checks passed — {run_dir}")
+    print(f"\n{len(results) - len(failures)}/{len(results)} checks passed: {run_dir}")
     if failures:
         print("A single failure can be the agent, not the app: re-run it with --only before filing anything.")
     return 1 if failures else 0

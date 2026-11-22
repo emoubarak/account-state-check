@@ -2,7 +2,7 @@
 
 jev's observer excludes `password`, `file` and `hidden` inputs by design, so no goal can ever
 sign in. The harness fills the real login form over CDP instead and lets the app's own client
-store its session (cookie, localStorage, IndexedDB — whatever the app uses). No hand-made
+store its session (cookie, localStorage, IndexedDB: whatever the app uses). No hand-made
 token, no guessed storage shape. Every tab in the dedicated profile then shares that session,
 which is also how one run switches between accounts.
 
@@ -115,7 +115,7 @@ def set_cookies(base, mapping):
 
 
 def seed(cfg, base):
-    """Consent, language, feature flags — whatever [browser] pins — before the first page.
+    """Consent, language, feature flags: whatever [browser] pins: before the first page.
 
     A cookie banner fixed at the bottom intercepts clicks on whatever sits under it, and an
     unpinned language makes an English goal read a French page.
@@ -184,7 +184,7 @@ def logout(cfg, base, reseed=True):
     """Forget every session the dedicated profile holds, then put the seeded state back.
 
     Cookies browser-wide (an API on another origin keeps its own), and every storage type of
-    the app's origin — IndexedDB included, which is where Firebase keeps its session.
+    the app's origin: IndexedDB included, which is where Firebase keeps its session.
     """
     cdp = _cdp()
     for method, params in (("Storage.clearCookies", {}),

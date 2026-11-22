@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Launchpad — a tiny app to try account-state-check on, with nothing to install.
+"""Launchpad: a tiny app to try account-state-check on, with nothing to install.
 
     python3 server.py                  # http://127.0.0.1:8765, data in demo.db next to this file
     LAUNCHPAD_BUG=1 python3 server.py  # the same app with a silent billing regression in it

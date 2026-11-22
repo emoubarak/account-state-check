@@ -2,7 +2,7 @@
 
 The one rule: every state written here must be one your app or your payment provider can
 actually produce. Copy the shape from the code that writes it (the webhook handler, the admin
-"grant plan" action, the downgrade job) — never invent it. A state production can never reach
+"grant plan" action, the downgrade job): never invent it. A state production can never reach
 makes the agent report bugs that do not exist.
 
 `db` is the datastore from account-state-check.toml: db.sql(q) → rows, db.one(q) → row | None,
@@ -42,7 +42,7 @@ def create_account(persona, run_id, db, options):
 
 
 def delete_account(account, db):
-    """Delete everything create_account made. `account` has id, email, persona, vars — no password.
+    """Delete everything create_account made. `account` has id, email, persona, vars: no password.
 
     Called at the end of every run (on failure too), and by the TTL sweep for a kept account.
     """

@@ -45,7 +45,7 @@ def save_shot(cdp_session, path, selector=""):
                 "width": rect["w"] + 2 * pad, "height": rect["h"] + 2 * pad, "scale": 1,
             }
         else:
-            print(f"  (shot: {selector!r} is not on the page — full page instead)")
+            print(f"  (shot: {selector!r} is not on the page: full page instead)")
     cdp("Page.bringToFront", session_id=cdp_session)
     time.sleep(0.4)
     data = cdp("Page.captureScreenshot", session_id=cdp_session, _response_timeout=30, **params)["data"]
@@ -75,7 +75,7 @@ def current_repo():
     run = subprocess.run(["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
                          capture_output=True, text=True)
     if run.returncode != 0 or not run.stdout.strip():
-        raise SystemExit("could not tell which GitHub repo this is — pass --repo owner/name (and check `gh auth status`)")
+        raise SystemExit("could not tell which GitHub repo this is: pass --repo owner/name (and check `gh auth status`)")
     return run.stdout.strip()
 
 

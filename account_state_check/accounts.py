@@ -2,9 +2,9 @@
 
 Two kinds, declared under [personas.<name>] in account-state-check.toml:
 
-* static     — an account that already exists on staging: `email` and `password` (use
+* static    : an account that already exists on staging: `email` and `password` (use
                `env:NAME`), plus optional `vars` for path placeholders.
-* throw-away — no `email`: your hooks file creates the account for the run, in the exact
+* throw-away: no `email`: your hooks file creates the account for the run, in the exact
                shape your production code writes, and deletes it at the end (on failure too).
 
 Throw-away accounts go into a local ledger the moment they exist. A run that was killed, or
@@ -59,7 +59,7 @@ def load_hooks(cfg, required=False):
 def persona_config(cfg, persona):
     if persona not in cfg.personas:
         known = ", ".join(cfg.personas) or "none declared"
-        raise SystemExit(f"unknown persona {persona!r} — {cfg.path.name} declares: {known}")
+        raise SystemExit(f"unknown persona {persona!r}: {cfg.path.name} declares: {known}")
     return cfg.personas[persona]
 
 
@@ -68,7 +68,7 @@ def provision(cfg, db, persona, run_id, options=()):
     where = f"[personas.{persona}]"
     if pc.get("email"):
         if options:
-            print(f"  note: --with {', '.join(options)} ignored — {persona} is a static account")
+            print(f"  note: --with {', '.join(options)} ignored: {persona} is a static account")
         return Account(persona=persona, email=resolve(pc["email"], where),
                        password=resolve(pc.get("password", ""), where), id=str(pc.get("id", "")),
                        vars=dict(pc.get("vars", {})), local_storage=dict(pc.get("local_storage", {})),
@@ -140,7 +140,7 @@ def purge(cfg, db, everything=False):
     """Delete throw-away accounts older than keep_hours (or all of them), and return their emails.
 
     A run in progress is never touched by the default: its accounts are seconds old. `everything`
-    is `account-state-check cleanup --all` — never while an audit is running.
+    is `account-state-check cleanup --all`: never while an audit is running.
     """
     cutoff = time.time() - cfg.keep_hours * 3600
     with _locked(cfg) as box:

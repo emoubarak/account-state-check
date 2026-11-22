@@ -41,7 +41,7 @@ class Ctx:
         """A placeholder value: the acting account's by default, another persona's if named."""
         account = self.accounts[persona] if persona else self.account
         if account is None:
-            raise KeyError(f"no account for {name!r} — this check is anonymous")
+            raise KeyError(f"no account for {name!r}: this check is anonymous")
         values = account.placeholders()
         if name not in values:
             raise KeyError(f"{account.persona} has no var {name!r} (has: {', '.join(values)})")
@@ -72,7 +72,7 @@ def fill(path, account):
     left = re.findall(r"\{(\w+)\}", path)
     if left:
         have = ", ".join(account.placeholders()) if account else "none (anonymous)"
-        raise SystemExit(f"unknown placeholder(s) {', '.join(left)} in {path!r} — this account has: {have}")
+        raise SystemExit(f"unknown placeholder(s) {', '.join(left)} in {path!r}: this account has: {have}")
     return path
 
 
@@ -101,7 +101,7 @@ def actions(state):
 
 
 def offered(state):
-    """What the page let this account act on at the end — often the real answer to "is it gated?"."""
+    """What the page let this account act on at the end: often the real answer to "is it gated?"."""
     return [(a["kind"], a.get("label") or "") for a in (state.get("page") or {}).get("actions", [])
             if a.get("kind") != "wait"]
 

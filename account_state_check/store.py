@@ -1,4 +1,4 @@
-"""The datastore every verdict is read from — the STAGING one, never production.
+"""The datastore every verdict is read from: the STAGING one, never production.
 
 The agent's "done" is a claim, not a result. A check passes when the database says the row
 landed (or did not), so each adapter answers one question: run this SQL, give me the rows.
@@ -35,7 +35,7 @@ class Datastore:
     lit = staticmethod(lit)
 
     def sql(self, query):
-        raise RuntimeError('no datastore configured ([datastore] kind = "none") — this check needs one')
+        raise RuntimeError('no datastore configured ([datastore] kind = "none"): this check needs one')
 
     def one(self, query):
         rows = self.sql(query)

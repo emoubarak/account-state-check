@@ -1,4 +1,4 @@
-# account-state-check — where the agent may go, how it signs in, what its answers are checked against.
+# account-state-check: where the agent may go, how it signs in, what its answers are checked against.
 # Relative paths are relative to this file. `env:NAME` reads an environment variable.
 
 [target]

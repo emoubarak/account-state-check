@@ -4,7 +4,7 @@
 `--config`). Relative paths inside it are relative to the file. Any string value written as
 `env:NAME` is read from the environment and is required.
 
-## `[target]` — where the agent may go
+## `[target]`: where the agent may go
 
 | key | default | meaning |
 |---|---|---|
@@ -22,7 +22,7 @@
 A localhost front talks to whatever that file points at. The host whitelist cannot see it, so
 this guard is what stops a local run from clicking through production data.
 
-## `[browser]` — the state of the page before the agent arrives
+## `[browser]`: the state of the page before the agent arrives
 
 | key | default | meaning |
 |---|---|---|
@@ -34,7 +34,7 @@ page, and again after every sign-out between personas. Typical entries: the cook
 "accepted" flag (find the banner component and read which key it checks), the i18n language
 key (`i18nextLng`, `NEXT_LOCALE`…), a "tour already seen" flag, a feature flag.
 
-## `[login]` — how the harness signs in
+## `[login]`: how the harness signs in
 
 The agent never touches the login form. The harness fills it over CDP with the native value
 setter plus `input`/`change` events (so React/Vue/Svelte controlled inputs see the value), then
@@ -55,7 +55,7 @@ With neither `success_*` set, any navigation away from the login path counts as 
 Two-step logins (email, then password on a second screen), SSO, magic links and CAPTCHAs are
 not supported. Give staging a plain password login for test accounts.
 
-## `[datastore]` — where verdicts are read (staging)
+## `[datastore]`: where verdicts are read (staging)
 
 | `kind` | keys | notes |
 |---|---|---|
@@ -83,7 +83,7 @@ In a check or a hook, `db` offers `db.sql(q)` → list of dicts, `db.one(q)` →
 
 **Staging only.** Hooks write to this database.
 
-## `[accounts]` and `[personas.<name>]` — account states
+## `[accounts]` and `[personas.<name>]`: account states
 
 | key | default | meaning |
 |---|---|---|
