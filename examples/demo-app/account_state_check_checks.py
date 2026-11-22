@@ -44,6 +44,23 @@ PRO_PUBLISH_SECOND = Check(
     expect_action=True,
 )
 
+FREE_PAYWALL_FITS_PHONE = Check(
+    key="free_paywall_fits_phone",
+    title="on a phone, a free account sees the whole paywall",
+    persona="free",
+    options=("live", "draft"),
+    path="/projects/{draft}",
+    goal=("Publish this project. You are done when it is live, "
+          "OR when the app refuses and tells you why."),
+    viewport="phone",   # a URL-only responsive check never gets here: the paywall exists only for this account state
+    layout=True,        # adds `layout_clean`: nothing off the screen, nothing covered, no sideways scroll
+    verify=lambda ctx, state: result(
+        user_saw_the_paywall=has_any(state, "upgrade to pro"),
+        draft_still_unpublished=not published(ctx, "draft"),
+    ),
+    expect_action=True,
+)
+
 ANONYMOUS_SENT_TO_LOGIN = Check(
     key="anonymous_sent_to_login",
     title="an anonymous visitor cannot reach the dashboard",
@@ -57,4 +74,4 @@ ANONYMOUS_SENT_TO_LOGIN = Check(
     budget=30,
 )
 
-CHECKS = [FREE_PUBLISH_BLOCKED, PRO_PUBLISH_SECOND, ANONYMOUS_SENT_TO_LOGIN]
+CHECKS = [FREE_PUBLISH_BLOCKED, PRO_PUBLISH_SECOND, FREE_PAYWALL_FITS_PHONE, ANONYMOUS_SENT_TO_LOGIN]

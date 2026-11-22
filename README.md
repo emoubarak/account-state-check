@@ -31,6 +31,26 @@ free-plan gate let the second project through and silently took the first one of
 is the class of bug mocks and unit tests miss: the deployed front, the backend and the
 permissions disagreeing with each other.
 
+## Does a lapsed user's paywall fit on a phone?
+
+URL-based responsive checkers screenshot public pages at a few widths. The screens that break
+are behind a sign-in: the paywall a free user hits on their second project, the billing page of
+a lapsed subscription, the invite dialog of a team member. account-state-check gets there as that
+account, on an emulated phone, then measures the page the agent ended on: anything sticking out
+of the screen, any control covered by a banner or a sticky bar, any sideways scroll.
+
+![The demo app's paywall on a 390 px phone, signed in as a free account. Left: it fits. Right: the same dialog with a fixed 520 px width, its text cut off on the right, reported as "offscreen: div[role=dialog] sticks out right by 178px".](docs/phone-paywall.png)
+
+```text
+$ account-state-check audit --only free_paywall_fits_phone      # LAUNCHPAD_BUG=mobile
+   ! offscreen: div[role=dialog] "Upgrade to Pro The Free plan includes 1 " sticks out right by 178px
+FAIL  free_paywall_fits_phone        as free          1 act   2 calls   0.8s  ← layout_clean
+```
+
+One `Check(viewport="phone", layout=True)` turns it into a standing guard; `ask --viewport phone`
+answers it once. The probe reads the page geometry, with no model call, and a modal dialog
+covering the page is not reported.
+
 ## What you get: a browser-agent QA tool for permissions and paywalls
 
 - **`account-state-check ask`**: one look, no test to write. "What does a free account get when it
@@ -67,10 +87,13 @@ Requirements: [uv](https://docs.astral.sh/uv/), Chrome/Chromium/Brave/Edge, and 
 cd examples/demo-app
 python3 server.py &                                   # "Launchpad", a tiny app with a free-plan gate
 uv run --project ../.. account-state-check doctor --login free   # no model calls
-uv run --project ../.. account-state-check audit                 # 3 checks, ~5 s, PASS
+uv run --project ../.. account-state-check audit                 # 4 checks, ~5 s, PASS
 
 kill %1; LAUNCHPAD_BUG=1 python3 server.py &          # the same app with a silent billing regression
 uv run --project ../.. account-state-check audit                 # free_publish_blocked FAILS, and says why
+
+kill %1; LAUNCHPAD_BUG=mobile python3 server.py &     # the paywall dialog is too wide for a phone
+uv run --project ../.. account-state-check audit                 # free_paywall_fits_phone FAILS on layout_clean
 ```
 
 ## How to install account-state-check as a Claude Code skill (or any agent skill)

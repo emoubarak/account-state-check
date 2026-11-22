@@ -7,7 +7,7 @@ your own. Free accounts may have one live project. Publishing a second one opens
 ```bash
 python3 server.py &                                   # http://127.0.0.1:8765
 uv run --project ../.. account-state-check doctor --login free   # sign-in over CDP, no model calls
-uv run --project ../.. account-state-check audit                 # 3/3 PASS
+uv run --project ../.. account-state-check audit                 # 4/4 PASS
 
 # one look, with a cropped screenshot of the paywall and a DB cross-check
 uv run --project ../.. account-state-check ask --as free --with live --with draft --path "/projects/{draft}" \
@@ -21,8 +21,13 @@ a free account's publish "makes room" by unpublishing its other project instead 
 The page looks fine and the agent says `done`. `free_publish_blocked` fails on
 `draft_still_unpublished` and `live_one_untouched`, because the verdict comes from `demo.db`.
 
+Or break the layout. `LAUNCHPAD_BUG=mobile python3 server.py` gives the paywall dialog a fixed
+520 px width: nothing changes on a laptop, but on a phone its text runs off the screen.
+`free_paywall_fits_phone` (signed in as a free account, on an emulated 390 px phone) fails on
+`layout_clean` and names the dialog sticking out by 178 px.
+
 | file | what it shows |
 |---|---|
 | `account-state-check.toml` | a complete config: target whitelist, login selectors, sqlite datastore, two personas |
 | `account_state_check_hooks.py` | throw-away accounts written exactly the way `server.py` writes them |
-| `account_state_check_checks.py` | a refusal, an allowance and an anonymous check, each verified in the database |
+| `account_state_check_checks.py` | a refusal, an allowance, a phone layout guard and an anonymous check, each verified in the database |

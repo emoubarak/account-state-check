@@ -129,8 +129,10 @@ PROBE = r"""
     if (!top || el.contains(top) || top.contains(el)) continue;
     if (el.labels && [...el.labels].some(x => x.contains(top))) continue;
     if (top.closest('nextjs-portal,vite-error-overlay,#webpack-dev-server-client-overlay')) continue;   // dev-server tooling, not the app
-    const modal = top.closest('[aria-modal=true],dialog[open]');
-    if (modal && !modal.contains(el)) continue;   // a modal covering the page is its job
+    // a modal covering the page is its job; the point may land on the dialog itself or on a backdrop that wraps it
+    const MODAL = '[aria-modal=true],dialog[open]';
+    const modal = top.closest(MODAL) || top.querySelector(MODAL);
+    if (modal && !modal.contains(el)) continue;
     let cover = top;
     for (let a = top; a && a !== document.body; a = a.parentElement) {
       const p = getComputedStyle(a).position;

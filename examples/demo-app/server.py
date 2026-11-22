@@ -27,6 +27,9 @@ FREE_LIVE_LIMIT = 1
 # LAUNCHPAD_BUG=1 ships a regression on purpose, to watch the audit catch it: a free account
 # publishing over its limit silently unpublishes its other project instead of being refused.
 BUGGY = os.environ.get("LAUNCHPAD_BUG") == "1"
+# LAUNCHPAD_BUG=mobile ships a layout regression instead: the paywall dialog gets a fixed 520 px
+# width. On a laptop nothing changes; on a phone its text runs off the right edge of the screen.
+MOBILE_BUG = os.environ.get("LAUNCHPAD_BUG") == "mobile"
 SESSIONS = {}  # token -> user id
 
 
@@ -80,7 +83,7 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{tit
   .error {{ color: #b3261e; }}
   .backdrop {{ position: fixed; inset: 0; background: rgba(20, 24, 33, .45); display: grid; place-items: center; }}
   [role=dialog] {{ background: #fff; border-radius: 12px; padding: 24px; max-width: 420px;
-                   animation: enter .25s ease-out both; }}
+                   animation: enter .25s ease-out both; }}{dialog_bug}
   @keyframes enter {{ from {{ opacity: 0; transform: scale(.96); }} }}
   ul {{ padding: 0; list-style: none; }} li {{ display: flex; justify-content: space-between; padding: 8px 0; }}
 </style></head><body>
@@ -94,7 +97,8 @@ def page(title, body, user=None):
         nav = (f'<span class="badge">{html.escape(user["plan"].title())} plan</span> '
                f'{html.escape(user["email"])} <form method="post" action="/logout" style="display:inline">'
                '<button>Sign out</button></form>')
-    return PAGE.format(title=html.escape(title), nav=nav, body=body)
+    dialog_bug = "\n  [role=dialog] { width: 520px; max-width: none; }" if MOBILE_BUG else ""
+    return PAGE.format(title=html.escape(title), nav=nav, body=body, dialog_bug=dialog_bug)
 
 
 LOGIN = """<div class="card"><h1>Sign in</h1>
@@ -238,7 +242,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("LAUNCHPAD_PORT", 8765))
     init_db()
-    print(f"Launchpad on http://127.0.0.1:{port} (data: {DB})" + ("  [LAUNCHPAD_BUG=1: gate broken]" if BUGGY else ""))
+    print(f"Launchpad on http://127.0.0.1:{port} (data: {DB})" + ("  [LAUNCHPAD_BUG=1: gate broken]" if BUGGY else "") + ("  [LAUNCHPAD_BUG=mobile: paywall too wide on a phone]" if MOBILE_BUG else ""))
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
 
 
