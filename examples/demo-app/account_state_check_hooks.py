@@ -9,7 +9,7 @@ PASSWORD = "Jevcheck-Throwaway-1!"
 def create_account(persona, run_id, db, options):
     init_db()  # the demo server may not have run yet
     plan = "pro" if persona == "pro" else "free"
-    email = f"jev-{persona}-{run_id}@{DOMAIN}"
+    email = f"asc-{persona}-{run_id}@{DOMAIN}"
     user_id = db.one(
         "insert into users (email, password_hash, plan) values "
         f"({db.lit(email)}, {db.lit(hash_password(PASSWORD))}, {db.lit(plan)}) returning id"
@@ -31,7 +31,7 @@ def delete_account(account, db):
 
 def purge_accounts(db, older_than_hours):
     rows = db.sql(
-        f"select id, email from users where email like 'jev-%@{DOMAIN}' "
+        f"select id, email from users where email like 'asc-%@{DOMAIN}' "
         f"and created_at < datetime('now', '-{float(older_than_hours)} hours')"
     )
     for row in rows:

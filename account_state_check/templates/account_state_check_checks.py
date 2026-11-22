@@ -3,11 +3,11 @@
 Each Check is a start path, ONE narrow goal in plain English with an explicit stop condition,
 and a `verify` that reads the database (or the page) — never the agent's own "done".
 
-    jevcheck audit --list
-    jevcheck audit --only free_publish_blocked --headed
+    account-state-check audit --list
+    account-state-check audit --only free_publish_blocked --headed
 """
 
-from jevcheck import Check, has_any, result
+from account_state_check import Check, has_any, result
 
 # ─────────────────────────────────────────────── a refusal: verify the write did NOT happen ──
 

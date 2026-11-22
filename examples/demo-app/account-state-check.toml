@@ -1,4 +1,4 @@
-# jevcheck config for the bundled Launchpad demo (python3 server.py).
+# account-state-check config for the bundled Launchpad demo (python3 server.py).
 
 [target]
 base = "http://127.0.0.1:8765"
@@ -16,7 +16,7 @@ kind = "sqlite"
 path = "demo.db"
 
 [accounts]
-hooks = "jevcheck_hooks.py"
+hooks = "account_state_check_hooks.py"
 keep_hours = 12
 
 [personas.free]
@@ -26,8 +26,8 @@ description = "a free account: one live project allowed"
 description = "a Pro account: unlimited live projects"
 
 [audit]
-checks = "jevcheck_checks.py"
+checks = "account_state_check_checks.py"
 
 [run]
-artifacts = ".jevcheck"
+artifacts = ".account-state-check"
 budget = 120

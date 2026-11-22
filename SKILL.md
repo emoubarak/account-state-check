@@ -1,17 +1,17 @@
 ---
-name: jev-check
+name: account-state-check
 description: Look at the real deployed staging app with a fast browser agent (jev), signed in as a chosen account state (free, paid, lapsed, team member, admin, anonymous), and verify what the app shows and allows against the database, not against the agent's own "done". Use when a ticket is about what a plan, role or account state can see or do in the UI (paywalls, plan limits, permissions, cross-account isolation), to reproduce a bug report on a real account state, to confirm a fix on staging or on a local dev server before closing it, or to take before/after screenshots for a ticket. On demand only, never in CI, never against production.
 ---
 
-# jev-check: ask the real app, as a real account state
+# account-state-check: ask the real app, as a real account state
 
 A browser agent reads your **deployed staging app** in a dedicated Chrome, signed in as a
 throw-away account in exactly the state you need, and follows a plain-English goal. Then the
 **database** gives the verdict: the row landed or it did not. The agent's "done" is only a
 claim.
 
-In this file, `jevcheck` means `uv run --project <this skill's base directory> jevcheck`, run
-from the user's project (the folder holding `jevcheck.toml`).
+In this file, `account-state-check` means `uv run --project <this skill's base directory> account-state-check`, run
+from the user's project (the folder holding `account-state-check.toml`).
 
 ## When it earns its keep
 
@@ -43,11 +43,11 @@ from the user's project (the folder holding `jevcheck.toml`).
    environment (jev's decision model, https://docs.typesafe.ai). `TEXT_MODEL_API_KEY` is
    optional: only goals that make the agent *type* need it (see `.env.example`).
 2. **Try the bundled demo** if you have never seen it run (two minutes, nothing to
-   configure). See `examples/demo-app/`: start `server.py`, then `jevcheck audit` from that
+   configure). See `examples/demo-app/`: start `server.py`, then `account-state-check audit` from that
    folder. `LAUNCHPAD_BUG=1` plants a silent billing regression, and the audit catches it.
-3. `jevcheck init` at the project root writes `jevcheck.toml`, `jevcheck_hooks.py` and
-   `jevcheck_checks.py`. Add `.jevcheck/` to `.gitignore`.
-4. **Fill `jevcheck.toml` by reading the app's code, not by guessing**
+3. `account-state-check init` at the project root writes `account-state-check.toml`, `account_state_check_hooks.py` and
+   `account_state_check_checks.py`. Add `.account-state-check/` to `.gitignore`.
+4. **Fill `account-state-check.toml` by reading the app's code, not by guessing**
    (`references/configuration.md` has every key):
    - `[target]`: the staging origin and `allowed_hosts`. If the user will test a local dev
      server, set `[target.local_guard]` so a localhost run proves it talks to staging.
@@ -59,12 +59,12 @@ from the user's project (the folder holding `jevcheck.toml`).
    - `busy_selector`: the app's own loading spinner, so the agent never decides on a loader.
    - `[datastore]`: the **staging** database (sqlite, postgres, supabase, or any `command`).
 5. **Personas and hooks.** One `[personas.<name>]` per account state. For throw-away ones,
-   write `create_account` / `delete_account` in `jevcheck_hooks.py`. **Copy each state from the
+   write `create_account` / `delete_account` in `account_state_check_hooks.py`. **Copy each state from the
    code that produces it in production** (the payment webhook, the admin "grant plan" action,
    the downgrade job), field for field. A state production can never reach produces findings
    that are not bugs. Use an unroutable email domain (`example.invalid`) so a cleanup sweep can
    never match a real user.
-6. `jevcheck doctor --login <persona>`: creates the account, signs it in over CDP, deletes it.
+6. `account-state-check doctor --login <persona>`: creates the account, signs it in over CDP, deletes it.
    No model calls. Repeat until it prints `ready.`
 
 ## Run it
@@ -73,12 +73,12 @@ from the user's project (the folder holding `jevcheck.toml`).
 
 ```bash
 # what does a free account get when it tries to publish a second project?
-jevcheck ask --as free --with live --with draft --path "/projects/{draft}" \
+account-state-check ask --as free --with live --with draft --path "/projects/{draft}" \
   --goal "Publish this project. You are done when it is live, OR when the app refuses and says why." \
   --sql "select id, published from projects where id = …"
 
 # an anonymous visitor on a public page
-jevcheck ask --path "/p/some-handle" --goal "Confirm the page shows a Contact button, then stop."
+account-state-check ask --path "/p/some-handle" --goal "Confirm the page shows a Contact button, then stop."
 ```
 
 `--as` provisions one account in that state and deletes it at the end, even on failure.
@@ -89,7 +89,7 @@ has something to exclude. `{id}`, `{email}` and
 every var `create_account` returns are substituted in `--path`. It prints what the agent did,
 where it ended, what the page said (two observations), **what that account could click**, and
 the `--sql` rows. `--headed` to watch. `--keep` leaves the browser on the result and prints
-the credentials for a manual look (kept accounts expire after `keep_hours`; `jevcheck cleanup
+the credentials for a manual look (kept accounts expire after `keep_hours`; `account-state-check cleanup
 --all` removes them now, but never while an audit is running). `--json` adds a
 machine-readable last line.
 
@@ -97,17 +97,17 @@ machine-readable last line.
 when the app refuses and says why." Keep it to one flow. The budget is 60 actions per goal, and
 a goal that chains four flows exhausts the budget instead of failing honestly.
 
-**The standing audit** runs every check in `jevcheck_checks.py`, each verified in the
+**The standing audit** runs every check in `account_state_check_checks.py`, each verified in the
 database:
 
 ```bash
-jevcheck audit --list
-jevcheck audit                          # all of them
-jevcheck audit --only free_publish_blocked --headed
+account-state-check audit --list
+account-state-check audit                          # all of them
+account-state-check audit --only free_publish_blocked --headed
 ```
 
 **Verify a fix you have not deployed yet**: start the dev server (pointed at staging), then
-`jevcheck ask --base http://localhost:5173 …`. With `[target.local_guard]` set, the run
+`account-state-check ask --base http://localhost:5173 …`. With `[target.local_guard]` set, the run
 refuses a local server whose env points anywhere but staging.
 
 ## Screenshots for a ticket (before / after)
@@ -116,14 +116,14 @@ When a bug is **visible**, a picture in the ticket lets the owner check it at a 
 
 ```bash
 # 1. the AFTER, cropped to the one element that matters
-jevcheck ask --as free … --shot after.png --shot-selector "[role=dialog]" --goal "…"
+account-state-check ask --as free … --shot after.png --shot-selector "[role=dialog]" --goal "…"
 
 # 2. the BEFORE of a fix already merged: serve the commit before it (throw-away worktree)
 <skill dir>/scripts/serve_commit.sh <fix-commit>~1 8081        # in the background
-jevcheck ask --base http://localhost:8081 … --shot before.png --goal "…"
+account-state-check ask --base http://localhost:8081 … --shot before.png --goal "…"
 
 # 3. publish to an orphan branch through the GitHub API, print the markdown table to paste
-jevcheck publish-shots <issue> before=before.png after=after.png
+account-state-check publish-shots <issue> before=before.png after=after.png
 ```
 
 **Look at every PNG before publishing it**, since it is a claim about the product. Take the
@@ -145,7 +145,7 @@ page the agent **ended on** (open menus and pickers included) and prints a `layo
 
 ```bash
 # the menu's language picker on a phone, as a NEW visitor (consent banner on screen)
-jevcheck ask --viewport phone --no-seed --path / --shot menu.png \
+account-state-check ask --viewport phone --no-seed --path / --shot menu.png \
   --goal "Open the menu, then open the language picker, then stop."
 ```
 
@@ -164,7 +164,7 @@ For a standing guard, add `viewport="phone", layout=True` to a `Check`: it then 
 
 ## Adding a durable check
 
-When a ticket deserves a regression guard, add a `Check` to `jevcheck_checks.py`
+When a ticket deserves a regression guard, add a `Check` to `account_state_check_checks.py`
 (`references/checks.md` has the API and patterns):
 
 ```python
@@ -230,7 +230,7 @@ it never set up.
 - Throw-away accounts only, on an unroutable domain, deleted at the end of every run. Static
   personas are never deleted, so use them only for accounts that exist for testing.
 - Keys stay in the environment or a gitignored env file. Never write them into
-  `jevcheck.toml`, a check or a commit.
+  `account-state-check.toml`, a check or a commit.
 
 References: `references/configuration.md` (every config key, hooks API, datastores),
 `references/checks.md` (Check API and patterns), `references/troubleshooting.md` (symptom →

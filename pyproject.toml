@@ -1,5 +1,5 @@
 [project]
-name = "jev-check"
+name = "account-state-check"
 version = "1.1.0"
 description = "Ask the real app, as a real account state: a browser agent reads your deployed staging app and every answer is checked against the database."
 readme = "README.md"
@@ -10,22 +10,24 @@ keywords = ["browser-agent", "e2e-testing", "ai-agent", "claude-code", "skill", 
 authors = [{ name = "El Mahdi Moubarak" }]
 # Pinned by commit on purpose: jev-ultrafast is 0.1.0 and `Agent.__init__` is not a stable
 # API yet. A silent break in a tool you only run by hand is a break you find at the worst
-# possible moment. Bump deliberately, then run `jevcheck doctor` and the demo audit.
+# possible moment. Bump deliberately, then run `account-state-check doctor` and the demo audit.
 dependencies = [
   "jev-ultrafast @ git+https://github.com/browser-use/jev-ultrafast@1231850a0bf1a0c0341fe408ef1668dbbfdfac46",
 ]
 
 [project.urls]
-Homepage = "https://github.com/emoubarak/jev-check"
-Repository = "https://github.com/emoubarak/jev-check"
-Issues = "https://github.com/emoubarak/jev-check/issues"
+Homepage = "https://github.com/emoubarak/account-state-check"
+Repository = "https://github.com/emoubarak/account-state-check"
+Issues = "https://github.com/emoubarak/account-state-check/issues"
 
 [project.optional-dependencies]
 # Only for `[datastore] kind = "postgres"`. sqlite, supabase and command need nothing extra.
 postgres = ["psycopg[binary]>=3.2"]
 
 [project.scripts]
-jevcheck = "jevcheck.cli:main"
+account-state-check = "account_state_check.cli:main"
+# Deprecated alias for installs that predate the rename (jev-check): warns, then forwards.
+jevcheck = "account_state_check.legacy:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -35,4 +37,4 @@ build-backend = "hatchling.build"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["jevcheck"]
+packages = ["account_state_check", "jevcheck"]

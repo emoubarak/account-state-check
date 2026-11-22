@@ -1,4 +1,4 @@
-"""jevcheck.toml: where the agent may go, how it signs in, what the answers are checked against.
+"""account-state-check.toml: where the agent may go, how it signs in, what the answers are checked against.
 
 The file lives in YOUR project (not in the skill), found in the working directory or any
 parent. Every relative path inside it is relative to the file itself.
@@ -10,7 +10,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
-CONFIG_NAME = "jevcheck.toml"
+CONFIG_NAME = "account-state-check.toml"
+LEGACY_CONFIG_NAME = "jevcheck.toml"   # projects set up before the rename (jev-check) keep working
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "::1")
 
 
@@ -81,8 +82,9 @@ class Config:
 def find(start=None):
     here = Path(start or Path.cwd()).resolve()
     for folder in (here, *here.parents):
-        if (folder / CONFIG_NAME).is_file():
-            return folder / CONFIG_NAME
+        for name in (CONFIG_NAME, LEGACY_CONFIG_NAME):
+            if (folder / name).is_file():
+                return folder / name
     return None
 
 
@@ -90,7 +92,7 @@ def load(path=None):
     path = Path(path).resolve() if path else find()
     if not path or not path.is_file():
         raise SystemExit(
-            f"no {CONFIG_NAME} here or in any parent folder. Run `jevcheck init` in your project, "
+            f"no {CONFIG_NAME} here or in any parent folder. Run `account-state-check init` in your project, "
             "or pass --config PATH."
         )
     raw = tomllib.loads(path.read_text())
@@ -115,6 +117,12 @@ def load(path=None):
     def rel(value):
         return (root / value).resolve() if value else None
 
+    # Default artifacts folder: keep using the pre-rename `.jevcheck/` while it exists, so its
+    # ledger of throw-away accounts is still read by `cleanup`.
+    artifacts_default = ".account-state-check"
+    if (root / ".jevcheck").is_dir() and not (root / artifacts_default).exists():
+        artifacts_default = ".jevcheck"
+
     return Config(
         path=path,
         base=base,
@@ -130,7 +138,7 @@ def load(path=None):
         keep_hours=float(accounts.get("keep_hours", 12)),
         personas=dict(raw.get("personas", {})),
         checks=rel(audit.get("checks")),
-        artifacts=rel(run.get("artifacts", ".jevcheck")),
+        artifacts=rel(run.get("artifacts", artifacts_default)),
         budget=float(run.get("budget", 180)),
         raw=raw,
     )

@@ -1,6 +1,6 @@
 """Durable checks: a start path, a goal in plain English, and a verdict read from the database.
 
-    from jevcheck import Check, result, has_any
+    from account_state_check import Check, result, has_any
 
     FREE_CANNOT_PUBLISH = Check(
         key="free_publish_blocked",
@@ -113,10 +113,10 @@ def status(state):
 
 def load(cfg):
     if not cfg.checks:
-        raise SystemExit(f'{cfg.path.name}: set [audit] checks = "jevcheck_checks.py" to run an audit')
+        raise SystemExit(f'{cfg.path.name}: set [audit] checks = "account_state_check_checks.py" to run an audit')
     if not cfg.checks.exists():
         raise SystemExit(f"checks file not found: {cfg.checks}")
-    spec = importlib.util.spec_from_file_location("jevcheck_user_checks", cfg.checks)
+    spec = importlib.util.spec_from_file_location("account_state_check_user_checks", cfg.checks)
     module = importlib.util.module_from_spec(spec)
     sys.path.insert(0, str(cfg.checks.parent))
     spec.loader.exec_module(module)

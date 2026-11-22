@@ -1,6 +1,6 @@
 # Configuration reference
 
-`jevcheck.toml` lives in your project, found from the working directory upward (or passed with
+`account-state-check.toml` lives in your project, found from the working directory upward (or passed with
 `--config`). Relative paths inside it are relative to the file. Any string value written as
 `env:NAME` is read from the environment and is required.
 
@@ -60,7 +60,7 @@ not supported. Give staging a plain password login for test accounts.
 | `kind` | keys | notes |
 |---|---|---|
 | `sqlite` | `path` | stdlib, nothing to install |
-| `postgres` | `dsn` (use `env:`) | run with `uv run --project <skill> --extra postgres jevcheck …` |
+| `postgres` | `dsn` (use `env:`) | run with `uv run --project <skill> --extra postgres account-state-check …` |
 | `supabase` | `project_ref`, `token` (use `env:`) | SQL through the Management API: a personal access token, no DB password |
 | `command` | `command` | any shell command: gets the SQL on stdin, prints a JSON array of row objects on stdout. Runs from the config's folder. MySQL, an ORM shell, an admin HTTP endpoint… |
 | `none` | | checks can only read the page |
@@ -94,8 +94,8 @@ A persona **with** `email` is static: an account that already exists on staging.
 
 ```toml
 [personas.admin]
-email = "env:JEV_ADMIN_EMAIL"
-password = "env:JEV_ADMIN_PASSWORD"
+email = "env:ACCOUNT_STATE_CHECK_ADMIN_EMAIL"
+password = "env:ACCOUNT_STATE_CHECK_ADMIN_PASSWORD"
 id = "42"                                  # optional, for {id}
 vars = { org = "acme" }                    # optional, for {org} in paths
 local_storage = { activeOrg = "acme" }     # optional, written after sign-in
@@ -105,7 +105,7 @@ description = "the staging admin"
 A persona **without** `email` is throw-away: `create_account` makes it for the run and
 `delete_account` removes it at the end, even on failure.
 
-### Hooks API (`jevcheck_hooks.py`)
+### Hooks API (`account_state_check_hooks.py`)
 
 ```python
 def create_account(persona: str, run_id: str, db, options: set[str]) -> dict:
@@ -138,7 +138,7 @@ Rules for hooks:
   account **confirmed** if staging requires email confirmation. The agent cannot read an inbox.
 - Use an unroutable domain (`@example.invalid`) and a recognisable prefix, so
   `purge_accounts` can never match a real user.
-- Every created account is recorded in `.jevcheck/ledger.json` right away and removed from it on
+- Every created account is recorded in `.account-state-check/ledger.json` right away and removed from it on
   deletion.
 
 ## `[audit]`
@@ -151,7 +151,7 @@ Rules for hooks:
 
 | key | default | meaning |
 |---|---|---|
-| `artifacts` | `.jevcheck` | runs (`runs/<kind>-<timestamp>/`, `runs/latest`), the ledger. Gitignore it |
+| `artifacts` | `.account-state-check` | runs (`runs/<kind>-<timestamp>/`, `runs/latest`), the ledger. Gitignore it |
 | `budget` | `180` | wall-clock seconds per goal |
 | `env_file` | none | a `KEY=VALUE` file loaded without overriding the shell (keep it gitignored) |
 
@@ -164,4 +164,4 @@ Rules for hooks:
 | `TEXT_MODEL_API_KEY` | only goals that make the agent type (search boxes, forms) |
 | `TEXT_MODEL_BASE_URL`, `TEXT_MODEL`, `TEXT_MODEL_REASONING` | any OpenAI-compatible endpoint for that text model |
 | `BH_CHROME_PATH` | a browser binary the search does not find |
-| `BH_TELEMETRY` | browser-harness telemetry. jevcheck sets it to `0` unless you set it |
+| `BH_TELEMETRY` | browser-harness telemetry. account-state-check sets it to `0` unless you set it |

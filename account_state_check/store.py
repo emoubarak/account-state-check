@@ -88,7 +88,7 @@ class Postgres(Datastore):
             from psycopg.rows import dict_row
         except ImportError:
             raise RuntimeError(
-                "kind = \"postgres\" needs psycopg: run with `uv run --project <skill> --extra postgres jevcheck …`"
+                "kind = \"postgres\" needs psycopg: run with `uv run --project <skill> --extra postgres account-state-check …`"
             ) from None
         with psycopg.connect(self.dsn, autocommit=True, row_factory=dict_row) as con:
             cur = con.execute(query)
@@ -113,7 +113,7 @@ class Supabase(Datastore):
             method="POST",
             data=json.dumps({"query": query}).encode(),
             headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json",
-                     "User-Agent": "jevcheck"},
+                     "User-Agent": "account-state-check"},
         )
         try:
             with urllib.request.urlopen(request, timeout=60) as response:

@@ -3,6 +3,26 @@ revision = 3
 requires-python = ">=3.12"
 
 [[package]]
+name = "account-state-check"
+version = "1.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "jev-ultrafast" },
+]
+
+[package.optional-dependencies]
+postgres = [
+    { name = "psycopg", extra = ["binary"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "jev-ultrafast", git = "https://github.com/browser-use/jev-ultrafast?rev=1231850a0bf1a0c0341fe408ef1668dbbfdfac46" },
+    { name = "psycopg", extras = ["binary"], marker = "extra == 'postgres'", specifier = ">=3.2" },
+]
+provides-extras = ["postgres"]
+
+[[package]]
 name = "anyio"
 version = "4.15.1"
 source = { registry = "https://pypi.org/simple" }
@@ -143,26 +163,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/f5/08/8eea9d4b8302028f3
 wheels = [
     { url = "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl", hash = "sha256:ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c", size = 69583, upload-time = "2026-09-17T14:11:03.168Z" },
 ]
-
-[[package]]
-name = "jev-check"
-version = "1.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "jev-ultrafast" },
-]
-
-[package.optional-dependencies]
-postgres = [
-    { name = "psycopg", extra = ["binary"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "jev-ultrafast", git = "https://github.com/browser-use/jev-ultrafast?rev=1231850a0bf1a0c0341fe408ef1668dbbfdfac46" },
-    { name = "psycopg", extras = ["binary"], marker = "extra == 'postgres'", specifier = ">=3.2" },
-]
-provides-extras = ["postgres"]
 
 [[package]]
 name = "jev-ultrafast"

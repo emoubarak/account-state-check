@@ -1,10 +1,10 @@
 """Screenshots for a ticket: take them on the agent's tab, publish them where issues show them.
 
-    jevcheck ask … --shot after.png --shot-selector "[role=dialog]"
-    jevcheck publish-shots 42 before=before.png after=after.png
+    account-state-check ask … --shot after.png --shot-selector "[role=dialog]"
+    account-state-check publish-shots 42 before=before.png after=after.png
     → prints a "Before | After" markdown table to paste into issue #42
 
-Published to an orphan branch (default `jevcheck-assets`, `issues/<n>/`) through the GitHub
+Published to an orphan branch (default `account-state-check-assets`, `issues/<n>/`) through the GitHub
 API (`gh api`), never through your working tree. Orphan, so it carries none of your code
 history; if your CI only runs on your main branches, pushing there starts nothing. In a
 private repo the images render for signed-in members only, which is the point.
@@ -84,7 +84,7 @@ def ensure_branch(repo, branch):
     if _gh(repo, "GET", f"git/ref/heads/{branch}", ok_404=True):
         return
     readme = (f"# {branch}\n\nScreenshots referenced from issues (before / after a fix), one folder "
-              "per issue: `issues/<number>/`. Written by jevcheck. Orphan branch: no code, no CI.\n")
+              "per issue: `issues/<number>/`. Written by account-state-check. Orphan branch: no code, no CI.\n")
     blob = _gh(repo, "POST", "git/blobs", {"content": readme, "encoding": "utf-8"})["sha"]
     tree = _gh(repo, "POST", "git/trees", {"tree": [
         {"path": "README.md", "mode": "100644", "type": "blob", "sha": blob}]})["sha"]
@@ -118,8 +118,23 @@ def markdown(urls):
     return "\n\n".join(f"**{k}**\n\n![{k}]({u})" for k, u in urls.items())
 
 
-def publish(issue, pairs, repo=None, branch="jevcheck-assets"):
+DEFAULT_BRANCH = "account-state-check-assets"
+LEGACY_BRANCH = "jevcheck-assets"   # what versions before the rename (jev-check) created
+
+
+def pick_branch(repo, branch=None):
+    """An explicit --branch wins. Otherwise keep feeding the pre-rename branch if this repo
+    already has it, so earlier and later screenshots live together."""
+    if branch:
+        return branch
+    legacy = _gh(repo, "GET", f"git/ref/heads/{LEGACY_BRANCH}", ok_404=True)
+    new = _gh(repo, "GET", f"git/ref/heads/{DEFAULT_BRANCH}", ok_404=True)
+    return LEGACY_BRANCH if legacy and not new else DEFAULT_BRANCH
+
+
+def publish(issue, pairs, repo=None, branch=None):
     repo = repo or current_repo()
+    branch = pick_branch(repo, branch)
     ensure_branch(repo, branch)
     urls = {}
     for pair in pairs:

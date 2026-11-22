@@ -1,6 +1,6 @@
 """Personas: the account states the agent signs in as.
 
-Two kinds, declared under [personas.<name>] in jevcheck.toml:
+Two kinds, declared under [personas.<name>] in account-state-check.toml:
 
 * static     — an account that already exists on staging: `email` and `password` (use
                `env:NAME`), plus optional `vars` for path placeholders.
@@ -45,11 +45,11 @@ class Account:
 def load_hooks(cfg, required=False):
     if not cfg.hooks:
         if required:
-            raise SystemExit(f"{cfg.path.name}: a throw-away persona needs [accounts] hooks = \"jevcheck_hooks.py\"")
+            raise SystemExit(f"{cfg.path.name}: a throw-away persona needs [accounts] hooks = \"account_state_check_hooks.py\"")
         return None
     if not cfg.hooks.exists():
         raise SystemExit(f"hooks file not found: {cfg.hooks}")
-    spec = importlib.util.spec_from_file_location("jevcheck_user_hooks", cfg.hooks)
+    spec = importlib.util.spec_from_file_location("account_state_check_user_hooks", cfg.hooks)
     module = importlib.util.module_from_spec(spec)
     sys.path.insert(0, str(cfg.hooks.parent))
     spec.loader.exec_module(module)
@@ -140,7 +140,7 @@ def purge(cfg, db, everything=False):
     """Delete throw-away accounts older than keep_hours (or all of them), and return their emails.
 
     A run in progress is never touched by the default: its accounts are seconds old. `everything`
-    is `jevcheck cleanup --all` — never while an audit is running.
+    is `account-state-check cleanup --all` — never while an audit is running.
     """
     cutoff = time.time() - cfg.keep_hours * 3600
     with _locked(cfg) as box:
@@ -157,7 +157,7 @@ def purge(cfg, db, everything=False):
                 continue
             ledger_remove(cfg, entry["run_id"], entry["persona"], entry.get("id") or entry.get("email"))
     # The safety net for a run killed before its ledger write: a signature-based sweep in the
-    # hooks, if you wrote one (e.g. every `jev-*@example.invalid` user older than N hours).
+    # hooks, if you wrote one (e.g. every `asc-*@example.invalid` user older than N hours).
     hooks = load_hooks(cfg) if cfg.hooks else None
     if hooks and hasattr(hooks, "purge_accounts"):
         gone += list(hooks.purge_accounts(db=db, older_than_hours=0 if everything else cfg.keep_hours) or [])

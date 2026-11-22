@@ -6,7 +6,7 @@
 |---|---|
 | `Chrome exited with code 0 before opening port` | an orphan browser still holds that profile: `pgrep -af remote-debugging-port`, kill it |
 | runs start failing in `ensure_daemon` | a browser-harness daemon from an earlier run is wedged: `pkill -f browser_harness.daemon` |
-| `remote debugging is turned off` / the agent opens tabs in YOUR Chrome | something dropped `BU_CDP_URL`. Never run jev directly, always through `jevcheck` |
+| `remote debugging is turned off` / the agent opens tabs in YOUR Chrome | something dropped `BU_CDP_URL`. Never run jev directly, always through `account-state-check` |
 | `login refused for …: <text>` | the app said no: the account is not confirmed, the password hash scheme differs, or the user row is missing its identity/profile row. Fix `create_account` |
 | `timed out waiting for the login form` | `username_selector` / `password_selector` do not match, or the login page needs JS it cannot load. Open it `--headed` |
 | `timed out waiting for the app to accept the session` | `success_path_prefix` is wrong (where does the app land after sign-in?) or sign-in needs a second step |
@@ -49,5 +49,5 @@ round trip), plus one text-model call per field it types. Typical numbers:
 ## Upgrading jev
 
 `pyproject.toml` pins jev-ultrafast by commit on purpose (`Agent.__init__` is not a stable API
-at 0.1.0). Bump the SHA, run `uv sync`, then `jevcheck doctor --login <persona>` and the demo
+at 0.1.0). Bump the SHA, run `uv sync`, then `account-state-check doctor --login <persona>` and the demo
 audit as a cheap smoke test.

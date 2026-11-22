@@ -1,13 +1,13 @@
-# jev-check: AI browser agent testing for staging apps, verified against your database
+# account-state-check: AI browser agent testing for staging apps, verified against your database
 
 **Ask the real app, as a real account state.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
 
-![jevcheck audit on the bundled demo app: PASS, then FAIL once a silent billing regression ships, while the agent still says done](docs/demo.gif)
+![account-state-check audit on the bundled demo app: PASS, then FAIL once a silent billing regression ships, while the agent still says done](docs/demo.gif)
 
-jev-check is an open-source **agent skill for Claude Code, Codex, OpenClaw and any coding agent
+account-state-check is an open-source **agent skill for Claude Code, Codex, OpenClaw and any coding agent
 that reads `SKILL.md`**. It puts a fast **AI browser agent** ([jev-ultrafast](https://github.com/browser-use/jev-ultrafast))
 on your **staging app**, signed in as a throw-away account in exactly the state you need (free,
 paid, lapsed, team member, stranger, anonymous), and has it follow a plain-English goal. Then
@@ -17,7 +17,7 @@ Use it for **end-to-end testing of plan gates, paywalls, roles, permissions and 
 isolation** (RLS, multi-tenant leaks), and to reproduce a bug report on a real account state.
 
 ```text
-$ jevcheck audit
+$ account-state-check audit
 == free_publish_blocked: a free account cannot publish a second project
        995 ms  ready     Publish
       1412 ms  done      Publish
@@ -33,10 +33,10 @@ permissions disagreeing with each other.
 
 ## What you get: a browser-agent QA tool for permissions and paywalls
 
-- **`jevcheck ask`**: one look, no test to write. "What does a free account get when it
+- **`account-state-check ask`**: one look, no test to write. "What does a free account get when it
   tries X?" It prints what the agent did, what the page said, **every control that account
   could click**, and the SQL rows you asked for.
-- **`jevcheck audit`**: standing checks (a path, a goal, a verdict read from the database),
+- **`account-state-check audit`**: standing checks (a path, a goal, a verdict read from the database),
   for plan gates, permissions and cross-account isolation.
 - **A screen-fit probe** (`--viewport phone`, `--no-seed`): after each run it reads the
   geometry of the page the agent ended on and reports popups sticking out of the screen,
@@ -66,24 +66,44 @@ Requirements: [uv](https://docs.astral.sh/uv/), Chrome/Chromium/Brave/Edge, and 
 ```bash
 cd examples/demo-app
 python3 server.py &                                   # "Launchpad", a tiny app with a free-plan gate
-uv run --project ../.. jevcheck doctor --login free   # no model calls
-uv run --project ../.. jevcheck audit                 # 3 checks, ~5 s, PASS
+uv run --project ../.. account-state-check doctor --login free   # no model calls
+uv run --project ../.. account-state-check audit                 # 3 checks, ~5 s, PASS
 
 kill %1; LAUNCHPAD_BUG=1 python3 server.py &          # the same app with a silent billing regression
-uv run --project ../.. jevcheck audit                 # free_publish_blocked FAILS, and says why
+uv run --project ../.. account-state-check audit                 # free_publish_blocked FAILS, and says why
 ```
 
-## How to install jev-check as a Claude Code skill (or any agent skill)
+## How to install account-state-check as a Claude Code skill (or any agent skill)
 
 Copy (or clone) this folder where your agent loads skills, for example
-`~/.claude/skills/jev-check/` for Claude Code (all projects) or `.claude/skills/jev-check/` in
+`~/.claude/skills/account-state-check/` for Claude Code (all projects) or `.claude/skills/account-state-check/` in
 one repository. Then, in your project:
 
 ```bash
-uv run --project ~/.claude/skills/jev-check jevcheck init     # jevcheck.toml + hooks + checks
+uv run --project ~/.claude/skills/account-state-check account-state-check init     # account-state-check.toml + hooks + checks
 ```
 
-and ask your agent to "set up jev-check for this app". The skill walks it through the rest.
+and ask your agent to "set up account-state-check for this app". The skill walks it through the rest.
+
+## Renamed from jev-check
+
+This project was called **jev-check** until November 2026. Nothing breaks for existing installs
+(the old GitHub URL redirects):
+
+| Before | Now | Old name still works? |
+|---|---|---|
+| repo `emoubarak/jev-check` | `emoubarak/account-state-check` | yes, GitHub redirects. Run `git remote set-url origin https://github.com/emoubarak/account-state-check.git` |
+| command `jevcheck` | `account-state-check` | yes, `jevcheck` prints a deprecation warning and runs the new command |
+| Python package `jevcheck` | `account_state_check` | yes, `from jevcheck import Check, result, ...` forwards (with a `DeprecationWarning`) |
+| config `jevcheck.toml` | `account-state-check.toml` | yes, still found if the new file is absent |
+| artifacts folder `.jevcheck/` | `.account-state-check/` | yes, kept while it exists and `[run] artifacts` is not set |
+| screenshots branch `jevcheck-assets` | `account-state-check-assets` | yes, kept if your repo already has it |
+| skill folder `.../skills/jev-check` | `.../skills/account-state-check` | move or re-clone it |
+
+`init` now writes `account-state-check.toml`, `account_state_check_hooks.py` and
+`account_state_check_checks.py`, and the scaffolded test accounts use the `asc-` e-mail prefix instead
+of `jev-`. The tool reads no product-specific environment variable, so there is nothing to
+migrate there. The aliases will be removed in a future major version.
 
 ## Requirements
 
@@ -103,7 +123,7 @@ default.
 ## FAQ
 
 **How is this different from Playwright, Cypress or Selenium?**
-Those run scripts you write and maintain. jev-check runs a plain-English goal with an AI
+Those run scripts you write and maintain. account-state-check runs a plain-English goal with an AI
 browser agent, and the verdict comes from a SQL query on your database, not from the agent.
 It complements your E2E suite: it finds what mocks and unit tests cannot, the front, the
 backend and the permissions disagreeing on a real deployed app.
@@ -122,7 +142,7 @@ It refuses any host not on a fail-closed whitelist, refuses a local dev server w
 anything but staging, runs in its own Chrome with a throw-away profile, and deletes its
 accounts after every run.
 
-## When not to use jev-check
+## When not to use account-state-check
 
 Production (refused by design), CI gates (it needs a real browser and costs model calls),
 payment lifecycles (test those against your payment provider's test mode), SSO, magic-link

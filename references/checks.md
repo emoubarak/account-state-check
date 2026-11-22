@@ -3,7 +3,7 @@
 A check is **one narrow goal** plus a **verdict that does not trust the agent**.
 
 ```python
-from jevcheck import Check, result, has_any, text_of, final_url, actions, offered, status
+from account_state_check import Check, result, has_any, text_of, final_url, actions, offered, status
 
 Check(
     key="unique_snake_case",       # --only uses it

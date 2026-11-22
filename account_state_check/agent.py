@@ -21,7 +21,7 @@ import time
 
 def prepare_env():
     """Before browser_harness is imported anywhere: it reads these at import time."""
-    os.environ.setdefault("BU_NAME", "jevcheck")       # our own daemon, not anyone else's
+    os.environ.setdefault("BU_NAME", "account-state-check")       # our own daemon, not anyone else's
     os.environ.setdefault("BH_TELEMETRY", "0")         # staging URLs stay on this machine
 
 

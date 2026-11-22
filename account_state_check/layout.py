@@ -14,8 +14,8 @@ user is in) and reports:
   sticky bar.
 * hscroll: the page itself scrolls sideways, with the widest elements responsible.
 
-    jevcheck ask --viewport phone --goal "Open the menu, then the language picker, then stop."
-    jevcheck ask --viewport phone --no-seed …        # first visit: the consent banner is shown
+    account-state-check ask --viewport phone --goal "Open the menu, then the language picker, then stop."
+    account-state-check ask --viewport phone --no-seed …        # first visit: the consent banner is shown
 
 Findings are facts about pixels at one viewport and one moment. Look at the `--shot` before
 reporting one: a decorative element that is meant to bleed off the edge is a false positive.

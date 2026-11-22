@@ -2,11 +2,11 @@
 # Serve your app as it was at <commit>: the "before" of a ticket's before/after pair.
 #
 #   serve_commit.sh <commit> [port]                 # default port 8081
-#   jevcheck ask --base http://localhost:8081 --as free --shot before.png --goal "…"
+#   account-state-check ask --base http://localhost:8081 --as free --shot before.png --goal "…"
 #
 # A throw-away git worktree in $TMPDIR (never your working tree), sharing the repo's
 # dependencies and env files by symlink, so it talks to the same STAGING backend (set
-# [target.local_guard] in jevcheck.toml to have that asserted). Ctrl-C stops the server; the
+# [target.local_guard] in account-state-check.toml to have that asserted). Ctrl-C stops the server; the
 # links are unlinked (never followed) and the worktree removed on the way out.
 #
 #   SERVE_CMD   how to start the dev server; {port} is substituted
@@ -18,7 +18,7 @@ port="${2:-8081}"
 serve_cmd="${SERVE_CMD:-npx vite --port {port} --strictPort}"
 links="${SERVE_LINKS:-node_modules .env .env.local}"
 repo="$(git rev-parse --show-toplevel)"
-wt="$(mktemp -d "${TMPDIR:-/tmp}/jevcheck-at-XXXXXX")"
+wt="$(mktemp -d "${TMPDIR:-/tmp}/account-state-check-at-XXXXXX")"
 
 cleanup() {
   for link in $links; do [ -L "$wt/$link" ] && unlink "$wt/$link"; done

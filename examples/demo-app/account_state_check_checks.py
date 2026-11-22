@@ -1,6 +1,6 @@
 """The Launchpad audit: what each account state is shown and allowed, verified in demo.db."""
 
-from jevcheck import Check, final_url, has_any, result
+from account_state_check import Check, final_url, has_any, result
 
 
 def published(ctx, key):

@@ -5,7 +5,7 @@ actually produce. Copy the shape from the code that writes it (the webhook handl
 "grant plan" action, the downgrade job) — never invent it. A state production can never reach
 makes the agent report bugs that do not exist.
 
-`db` is the datastore from jevcheck.toml: db.sql(q) → rows, db.one(q) → row | None,
+`db` is the datastore from account-state-check.toml: db.sql(q) → rows, db.one(q) → row | None,
 db.value(q) → first column, db.lit(v) → a quoted SQL literal.
 """
 
@@ -24,7 +24,7 @@ def create_account(persona, run_id, db, options):
               "vars": {...},            # {placeholders} for --path / Check.path, e.g. {"draft": project_id}
               "local_storage": {...}}   # written after sign-in (e.g. the active workspace)
     """
-    email = f"jev-{persona}-{run_id}@{DOMAIN}"
+    email = f"asc-{persona}-{run_id}@{DOMAIN}"
     raise NotImplementedError(
         "write create_account for your app: insert the user (hash the password the way your auth "
         "does, or call your staging admin API), then put it in the state for " + repr(persona)
@@ -54,6 +54,6 @@ def delete_account(account, db):
 # throw-away user older than `older_than_hours`, by the signature only they carry.
 #
 # def purge_accounts(db, older_than_hours):
-#     rows = db.sql(f"delete from users where email like 'jev-%@{DOMAIN}' "
+#     rows = db.sql(f"delete from users where email like 'asc-%@{DOMAIN}' "
 #                   f"and created_at < now() - interval '{int(older_than_hours)} hours' returning email")
 #     return [r["email"] for r in rows]

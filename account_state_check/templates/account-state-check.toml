@@ -1,4 +1,4 @@
-# jevcheck — where the agent may go, how it signs in, what its answers are checked against.
+# account-state-check — where the agent may go, how it signs in, what its answers are checked against.
 # Relative paths are relative to this file. `env:NAME` reads an environment variable.
 
 [target]
@@ -47,7 +47,7 @@ kind = "none"            # sqlite | postgres | supabase | command | none
 # command = "./scripts/staging-sql.sh"                  # SQL on stdin → JSON rows on stdout
 
 [accounts]
-hooks = "jevcheck_hooks.py"   # create_account / delete_account for throw-away personas
+hooks = "account_state_check_hooks.py"   # create_account / delete_account for throw-away personas
 keep_hours = 12               # a --keep account lives this long, then the next run deletes it
 
 # One section per account state you want to look at the app as.
@@ -60,14 +60,14 @@ description = "a paying account"
 
 # An account that already exists on staging:
 # [personas.admin]
-# email = "env:JEV_ADMIN_EMAIL"
-# password = "env:JEV_ADMIN_PASSWORD"
+# email = "env:ACCOUNT_STATE_CHECK_ADMIN_EMAIL"
+# password = "env:ACCOUNT_STATE_CHECK_ADMIN_PASSWORD"
 # vars = { org = "acme" }                 # usable as {org} in --path
 
 [audit]
-checks = "jevcheck_checks.py"
+checks = "account_state_check_checks.py"
 
 [run]
-artifacts = ".jevcheck"       # runs, screenshots, the account ledger (add it to .gitignore)
+artifacts = ".account-state-check"       # runs, screenshots, the account ledger (add it to .gitignore)
 budget = 180                  # wall-clock seconds per goal
-# env_file = ".env.jevcheck"  # KEY=VALUE file for TYPESAFE_API_KEY etc. (never commit it)
+# env_file = ".env.account-state-check"  # KEY=VALUE file for TYPESAFE_API_KEY etc. (never commit it)

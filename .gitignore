@@ -1,10 +1,11 @@
 .venv/
 __pycache__/
 *.pyc
-.jevcheck/
+.account-state-check/
 .env
 .env.*
 !.env.example
 examples/demo-app/demo.db
 # seller-side marketplace copy, not part of the product
 LISTING.md
+.jevcheck/
