@@ -62,8 +62,11 @@ def free_port(start=9333, tries=200):
 
 
 def launch(profile_dir, port, *, headless=False, log_path=None):
+    """Start Chrome. `port=0` lets Chrome pick a free port itself (read it back with `wait_ready`)."""
     profile_dir = Path(profile_dir)
     profile_dir.mkdir(parents=True, exist_ok=True)
+    # a stale file from an earlier attempt on this profile would name a dead port
+    (profile_dir / "DevToolsActivePort").unlink(missing_ok=True)
     args = [
         find_chrome(),
         f"--remote-debugging-port={port}",
@@ -98,18 +101,33 @@ def endpoint(port):
         return None
 
 
-def wait_ready(port, proc=None, timeout=40):
+def active_port(profile_dir):
+    """The port Chrome actually bound, from `<profile>/DevToolsActivePort` (first line), else None."""
+    try:
+        first = (Path(profile_dir) / "DevToolsActivePort").read_text().splitlines()[0]
+        return int(first)
+    except (OSError, IndexError, ValueError):
+        return None
+
+
+def wait_ready(port, proc=None, timeout=40, profile_dir=None):
+    """Wait until Chrome answers on DevTools. Returns `(port, websocket_url)`.
+
+    With `port=0` Chrome chose its own port: the real one is read from `DevToolsActivePort` in
+    `profile_dir`, so two runs can never collide on a port that looked free a moment earlier.
+    """
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if ws := endpoint(port):
-            return ws
+        real = port or (active_port(profile_dir) if profile_dir else None)
+        if real and (ws := endpoint(real)):
+            return real, ws
         if proc is not None and proc.poll() is not None:
             raise RuntimeError(
-                f"Chrome exited with code {proc.returncode} before opening port {port}: an orphan "
+                f"Chrome exited with code {proc.returncode} before opening port {port or 'auto'}: an orphan "
                 "browser may still hold the profile (`pgrep -af remote-debugging-port`)"
             )
         time.sleep(0.2)
-    raise RuntimeError(f"Chrome did not open the DevTools port {port} within {timeout}s")
+    raise RuntimeError(f"Chrome did not open the DevTools port {port or 'auto'} within {timeout}s")
 
 
 def stop(proc):

@@ -25,20 +25,31 @@ def prepare_env():
     os.environ.setdefault("BH_TELEMETRY", "0")         # staging URLs stay on this machine
 
 
-def start_browser(chrome, run_dir, *, headed, port_start=9333):
-    """Launch the dedicated Chrome and point browser-harness at it. Returns the process."""
+def start_browser(chrome, run_dir, *, headed, port_start=None, attempts=3, timeout=25):
+    """Launch the dedicated Chrome and point browser-harness at it. Returns the process.
+
+    By default Chrome picks its own port (`--remote-debugging-port=0`) and we read it back from
+    `DevToolsActivePort`: no port is guessed, so none can collide. A given `port_start`
+    (`--cdp-port`) is tried first, then Chrome's own choice. If Chrome does not come up, it is
+    stopped and relaunched (`attempts` times) rather than failing the whole run.
+    """
     prepare_env()
-    port = chrome.free_port(port_start)
-    proc = chrome.launch(run_dir / "chrome-profile", port, headless=not headed,
-                         log_path=run_dir / "chrome.log")
-    try:
-        chrome.wait_ready(port, proc)
-    except Exception:
-        chrome.stop(proc)  # never leave a browser behind that nothing will attach to
-        raise
-    os.environ["BU_CDP_URL"] = f"http://127.0.0.1:{port}"
-    ensure_daemon()
-    return proc
+    profile = run_dir / "chrome-profile"
+    ports = [chrome.free_port(port_start)] if port_start else []
+    ports += [0] * max(1, attempts - len(ports))
+    last = None
+    for port in ports:
+        proc = chrome.launch(profile, port, headless=not headed, log_path=run_dir / "chrome.log")
+        try:
+            real, _ = chrome.wait_ready(port, proc, timeout=timeout, profile_dir=profile)
+        except Exception as e:
+            chrome.stop(proc)  # never leave a browser behind that nothing will attach to
+            last = e
+            continue
+        os.environ["BU_CDP_URL"] = f"http://127.0.0.1:{real}"
+        ensure_daemon()
+        return proc
+    raise last
 
 
 def ensure_daemon():

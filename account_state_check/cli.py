@@ -36,7 +36,8 @@ def _browser_flags(p):
     p.add_argument("--budget", type=float, help="wall-clock seconds per goal (default: [run] budget)")
     p.add_argument("--keep", action="store_true",
                    help="keep the accounts and the browser, print the credentials for a manual look")
-    p.add_argument("--cdp-port", type=int, default=9333, help="first port tried for the dedicated Chrome")
+    p.add_argument("--cdp-port", type=int, default=None,
+                   help="DevTools port to try first for the dedicated Chrome (default: Chrome picks a free one itself)")
     p.add_argument("--viewport", metavar="SIZE",
                    help="emulate a screen: phone (390x844), small-phone, tablet, laptop, or WIDTHxHEIGHT[@DPR]. "
                         "The page's layout is then checked too: off-screen popups, covered controls, sideways scroll")
@@ -60,7 +61,7 @@ def parse_args(argv=None):
                    help="also create that persona, sign it in over CDP, and delete it again")
     p.add_argument("--base")
     p.add_argument("--headed", action="store_true")
-    p.add_argument("--cdp-port", type=int, default=9333)
+    p.add_argument("--cdp-port", type=int, default=None)
 
     p = sub.add_parser("ask", help="one look: a goal, a start path, an optional account state")
     _common(p)
